@@ -1,3 +1,8 @@
-use serde::{Serialize, Deserialize};
-use crate::svg::Style;
+use crate::keybind::Keybinds;
+
+struct Config {
+    keybinds: Option<Keybinds>,
+    target: Option<String>
+}
+
 

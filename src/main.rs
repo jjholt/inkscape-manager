@@ -8,7 +8,7 @@ fn main() {
 }
 
 #[cfg(test)]
-mod tests {
+mod implementation {
     use super::*;
     #[test]
     fn check_inkscape_is_active() {
