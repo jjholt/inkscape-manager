@@ -8,3 +8,7 @@ fn copy(text: &str, target: Option<&str>) {
     }
     command.spawn().unwrap();
 }
+
+fn paste() {
+    unimplemented!();
+}
