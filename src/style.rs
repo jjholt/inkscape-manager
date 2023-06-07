@@ -8,17 +8,21 @@ pub struct Style {
     pub value: String,
 }
 
-pub struct StyleList<'a> {
-    pub styles: &'a [Style]
+// pub struct StyleList<'a> {
+//     pub styles: &'a [Style]
+// }
+
+pub struct StyleList <'a,'b>{
+    pub styles: &'a [&'b Style]
 }
 
-impl <'a> fmt::Display for Style {
+impl fmt::Display for Style {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:{};", self.style, self.value)
     }
 }
 
-impl <'a> fmt::Display for StyleList<'a> {
+impl <'a, 'b>fmt::Display for StyleList <'a, 'b>{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let concat_strings: String = self.styles.iter().map(|style| style.to_string()).collect();
         write!(f, "{}", concat_strings)
