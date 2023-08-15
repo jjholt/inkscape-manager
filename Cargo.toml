@@ -1,0 +1,19 @@
+[package]
+name = "inkscape-manager"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# styler = {path = "../styler"}
+styler = {git = "https://github.com/jjholt/styler"}
+xcb = { version = "1.2.1", features = ["xtest"], git = "https://github.com/rust-x-bindings/rust-xcb", branch = "main" }
+serde_yaml = "^0.9.25"
+serde = { version = "^1.0.163", features = ["derive"] }
+xkbcommon = { version = "0.5", features = ["x11"] }
+
+# xcb-wm = { version = "0.4.0", features = ["icccm", "ewmh"] }
+
+xcb-wm = {path = "../xcb-wm", features = ["icccm", "ewmh"]}
+# xcb-wm = {features = ["icccm", "ewmh"], git = "https://github.com/jjholt/xcb-wm", branch = "main"}

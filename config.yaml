@@ -1,0 +1,22 @@
+target: image/x-inkscape-svg
+
+keybinds:
+- key: a
+  style: fill
+  value: "#000000"
+- key: s
+  style: fill
+  value: "#aaaaaa"
+- key: d
+  style: fill
+  value: "#ffffff"
+- key: f
+  style: opacity
+  value: "0.5"
+- key: g
+  style: opacity
+  value: "1"
+- key: w
+  rebind_to: x
+- key: q
+  rebind_to: d
