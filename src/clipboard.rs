@@ -1,45 +1,34 @@
-use std::{process::{Command, Stdio}, io::{Write, self}};
+use std::{
+    io,
+    process::{Command, Stdio},
+};
 
 pub trait Clipboard {
     fn to_clipboard(&self, target: Option<&str>) -> io::Result<&String>;
-
-    fn paste(&self, target: Option<&str>) -> io::Result<&String>;
 }
 
 impl Clipboard for String {
     fn to_clipboard(&self, target: Option<&str>) -> io::Result<&Self> {
-        let mut command = Command::new("xclip");
-        command.args(["-selection", "clipboard"]);
-        if let Some(target_val) = target {
-            command.args(["-t", target_val]);
-        }
-        // command.output()?;
-        let child = command
-            .stdin(Stdio::piped())
+        // println!("{}", self);
+        let echo_child = Command::new("echo")
+            .arg(self)
+            .stdout(Stdio::piped())
             .spawn()?;
+        let echo_out = echo_child.stdout.expect("Failed to open echo out");
 
-        child
-            .stdin
-            .unwrap()
-            .write_all(self.as_bytes())?;
+        let mut command = Command::new("xclip");
+        command
+            .stdin(Stdio::from(echo_out))
+            .args(["-selection", "clipboard"]);
+
+        if let Some(target) = target {
+            command.args(["-t", target]);
+        }
+
+        command.spawn()?.wait_with_output()?;
+        // let child = command.stdin(Stdio::piped()).spawn()?;
+        //
+        // child.stdin.unwrap().write_all(self.as_bytes())?;
         Ok(self)
     }
-
-    fn paste(&self, target: Option<&str>) -> io::Result<&Self> {
-        let mut command = Command::new("xclip");
-        command.args(["-selection", "clipboard", "-o"]);
-        if let Some(target_val) = target {
-            command.args(["-t", target_val]);
-        }
-        let child = command
-            .stdin(Stdio::piped())
-            .spawn()?;
-
-        child
-            .stdin
-            .unwrap()
-            .write_all(self.as_bytes())?;
-        Ok(self)
-    }
-
 }

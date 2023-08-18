@@ -17,6 +17,6 @@ keybinds:
   style: opacity
   value: "1"
 - key: w
-  rebind_to: x
-- key: q
-  rebind_to: d
+  rebind_to: e
+- key: e
+  rebind_to: w

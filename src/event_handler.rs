@@ -1,115 +1,112 @@
 use xcb::x;
+
 use crate::clipboard::Clipboard;
 use crate::connection::*;
 use crate::key::*;
 
 use styler::keybind::*;
 
-trait SendEvent {
-    fn send(&self) -> x::SendEvent<Self> where Self: xcb::BaseEvent;
+pub trait SendEvent {
+    fn send(&self) -> x::SendEvent<Self> where Self: xcb::BaseEvent {
+        x::SendEvent {
+            propagate: true,
+            destination: x::SendEventDest::PointerWindow,
+            event_mask: x::EventMask::NO_EVENT,
+            event: self,
+        }
+    }
 }
 
 pub struct EventHandler<'a> {
     connections: &'a Connections<'a>,
     keybinds: &'a Keybinds<'a>,
-    target: &'a Option<&'a str>,
 }
 
-pub struct KeyPress<'a,'b> {
-    event: &'b x::KeyPressEvent,
+pub struct KeyPress<'a> {
+    event: x::KeyPressEvent,
     connections: &'a Connections<'a>,
     action: &'a Action<'a>,
-    // target: &'a Option<&'a str>,
 }
 
-pub struct KeyPressResponse<'a> {
-    connections: &'a Connections<'a>,
+impl SendEvent for x::KeyPressEvent {}
+
+impl <'a> KeyPress <'a>{
+    pub fn send(&self, target: &Option<&str>) -> Result<(), xcb::ProtocolError> {
+        match self.action {
+            Action::Rebind { rebind_to: new_key } => {
+                let new_key = new_key.try_into_keycode().unwrap();
+                let cookie = self.connections.xcb
+                    .send_request_checked(&self.to_new_event(new_key, None).send());
+                self.connections.xcb.check_request(cookie)?;
+                Ok(())
+            }
+            Action::ApplyStyle(_style) => {
+                let svg = crate::read(&std::path::PathBuf::from("examples/dashed.svg")).unwrap();
+                svg.to_clipboard(*target).unwrap();
+                // self.connections.get_active_window().unwrap().ungrab_key().unwrap();
+                self.paste_style()?;
+                Ok(())
+                    // svg.paste(Some(target)).unwrap();
+                    // Send ctrl + shift + v
+            }
+        }
+    }
+
+    fn to_new_event(&self, new_key: x::Keycode, state: Option<x::KeyButMask>) -> x::KeyPressEvent {
+        let ev = &self.event;
+        let state = state.unwrap_or(ev.state());
+        x::KeyPressEvent::new(
+            new_key,
+            ev.time(), ev.root(), ev.event(), ev.child(),
+            ev.root_x(), ev.root_y(), ev.event_x(), ev.event_y(),
+            state, 
+            ev.same_screen(),
+        )
+    }
+
+    fn new(event: x::KeyPressEvent, connections: &'a Connections, action: &'a Action,) -> Self where Self: Sized {
+        Self {event, connections, action}
+    }
+
+    fn paste_style(&self) -> Result<(), xcb::ProtocolError> {
+        let new_key = "v".try_into_keycode().unwrap();
+        let state = Some(x::KeyButMask::CONTROL | x::KeyButMask::SHIFT);
+        let keypress = self.to_new_event(new_key, state);
+        self.connections.xcb.send_and_check_request(&keypress.send())
+    }
 }
 
 impl<'a> EventHandler<'a> {
-    pub fn new(connections: &'a Connections<'a>, keybinds: &'a Keybinds<'a>, target: &'a Option<&'a str>) -> EventHandler<'a> {
-       Self {connections, keybinds, target}
+    pub fn new( connections: &'a Connections<'a>, keybinds: &'a Keybinds<'a>) -> EventHandler<'a> {
+        Self {connections, keybinds}
     }
 
-    pub fn new_keypress<'b>(&self, event: &'b x::KeyPressEvent, action: &'a Action) -> KeyPress<'a,'b> {
-        KeyPress {event, action, connections: self.connections}
-    }
-
-    pub fn listen(&self) -> xcb::Result<()> {
+    pub fn listen(&self) -> xcb::Result<Option<KeyPress>> {
         let connections = self.connections;
         let xcb = connections.xcb;
 
         let event = xcb.wait_for_event()?;
 
+        let window = connections.get_active_window()?;
         match event {
-            xcb::Event::X(x::Event::PropertyNotify(_)) => {
-                connections.get_active_window()?
-                    .into_inkscape()
-                    .and_then(|w| w.grab_key().ok());
-            }
+            xcb::Event::X(x::Event::PropertyNotify(_)) if window.is_inkscape()? => window.grab_key()?,
+            xcb::Event::X(x::Event::PropertyNotify(_)) => window.ungrab_key()?,
             xcb::Event::X(x::Event::KeyPress(ev)) => {
-                let keybind = ev.detail()
-                    .try_into_str()
-                    .and_then(|c| self.keybinds.get_bind_for(c)); 
+                if ev.detail() == 134 {
+                    //Win key
+                    println!("Keys are no longer being grabbed.");
+                    window.ungrab_key()?;
+                }
 
-                if let Some(keybind) = keybind {
-                    // Send dbus command here
-                    self
-                        .new_keypress(&ev, keybind.action())
-                        .send(self.target)
-                        .flush()?;
-                } 
+                let keypress = ev
+                    .detail()
+                    .try_into_str()
+                    .and_then(|c| self.keybinds.get_bind_for(c))
+                    .map(|k| KeyPress::new(ev, connections, k.action()));
+                return Ok(keypress)
             }
             _ => (),
-        }
-        Ok(())
-    }
-}
-
-impl<'a, 'b> KeyPress<'a, 'b> {
-    pub fn send(&self, target: &Option<&str>) -> KeyPressResponse<'_> {
-        match self.action {
-            Action::Rebind { rebind_to: new_key } => {
-                let new_key = new_key.try_into_keycode().unwrap();
-                self.connections.xcb.send_request_checked(&self.press(new_key).send());
-                // self.connections.xcb.send_request_checked(&self.release(new_key).send());
-            },
-            Action::ApplyStyle(_style) => {
-                let svg = crate::read(&std::path::PathBuf::from("style.svg")).unwrap();
-                svg.to_clipboard(*target).unwrap();
-                todo!();
-                    // svg.paste(Some(target)).unwrap();
-                    // Send ctrl + shift + v
-            },
-        }
-        KeyPressResponse { connections: self.connections }
-    }
-
-    fn press(&self, new_key: x::Keycode) -> x::KeyPressEvent {
-        let k = self.event;
-        x::KeyPressEvent::new(
-            new_key,
-            k.time(), k.root(), k.event(),
-            k.child(),k.root_x(),k.root_y(),
-            k.event_x(),k.event_y(),k.state(),k.same_screen())
-    }
-}
-
-
-impl SendEvent for x::KeyPressEvent {
-    fn send(&self) -> x::SendEvent<Self> where Self: xcb::BaseEvent {
-        x::SendEvent {
-            propagate: true,
-            // destination: x::SendEventDest::PointerWindow,
-            destination: x::SendEventDest::Window(self.event()),
-            event_mask: x::EventMask::KEY_PRESS | x::EventMask::KEY_RELEASE,
-            event: self,
-        } 
-    }
-}
-
-impl<'a> KeyPressResponse<'a> {
-    pub fn flush(&self) -> Result<(), xcb::ConnError> {
-        self.connections.xcb.flush()
+        };
+        Ok(None)
     }
 }

@@ -2,20 +2,15 @@ mod connection;
 mod event_handler;
 mod key;
 
-mod config;
 mod clipboard;
+mod config;
 
 use config::Config;
 use connection::Connections;
 
 use event_handler::EventHandler;
 
-use std::{
-    path::PathBuf,
-    fs::File,
-    error::Error,
-    io::prelude::*,
-};
+use std::{error::Error, fs::File, io::prelude::*, path::PathBuf};
 
 fn read(filename: &PathBuf) -> Result<String, Box<dyn Error>> {
     let mut file = File::open(filename)?;
@@ -34,13 +29,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("Target:\n{}", target);
     }
 
-    // let (xcb, screen_num) = xcb::Connection::connect(None)?;
-    let (xcb, screen_num) = xcb::Connection::connect_with_extensions(None, &[xcb::Extension::Test], &[])?;
+    let (xcb, screen_num) = xcb::Connection::connect(None)?;
     let connections = Connections::setup(&xcb, screen_num)?;
-    let event_handler = EventHandler::new(&connections, &config.keybinds, &config.target);
+    let event_handler = EventHandler::new(&connections, &config.keybinds);
 
     loop {
-        event_handler.listen()?;
+        let keypress = event_handler.listen().unwrap_or(None);
+        if let Some(keypress) = keypress {
+            keypress.send(&config.target).unwrap_or(());
+        }
     }
 }
-

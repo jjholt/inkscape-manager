@@ -5,7 +5,7 @@ use styler::keybind::*;
 #[derive(Deserialize, Serialize, PartialEq, Debug)]
 pub struct Config<'a> {
     pub keybinds: Keybinds<'a>,
-    pub target: Option<&'a str>
+    pub target: Option<&'a str>,
 }
 #[cfg(test)]
 mod tests {
@@ -26,7 +26,10 @@ keybinds:
         let yaml: &str = "- key: a\n  style: fill\n  value: 000\n- key: b\n  rebind_to: q";
         // let keybinds: Vec<Keybind> = serde_yaml::from_str(yaml).unwrap();
         let keybinds: Keybinds = serde_yaml::from_str(yaml).unwrap();
-        let config = Config {keybinds, target: Some("image/x-inkscape-svg")};
+        let config = Config {
+            keybinds,
+            target: Some("image/x-inkscape-svg"),
+        };
         println!("{}", serde_yaml::to_string(&config).unwrap());
 
         let config_from_yaml: Config = serde_yaml::from_str(TEST_STR).unwrap();
