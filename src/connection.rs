@@ -36,8 +36,6 @@ impl<'a> Connections<'a> {
             window: root,
             value_list: &[x::Cw::EventMask(
                 x::EventMask::PROPERTY_CHANGE
-                // | x::EventMask::KEY_PRESS
-                // | x::EventMask::KEY_RELEASE
             )],
         });
         xcb.check_request(cookie)?;

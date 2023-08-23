@@ -3,20 +3,18 @@ target: image/x-inkscape-svg
 keybinds:
 - key: a
   style: fill
-  value: "#000000"
-- key: s
-  style: fill
-  value: "#aaaaaa"
-- key: d
-  style: fill
-  value: "#ffffff"
-- key: f
-  style: opacity
-  value: "0.5"
+- key: s # Stroke + constants
+  style: stroke;stroke-width:2.64566929;stroke-dasharray:15.87401575,2.64566929;stroke-opacity:1;
+- key: b # Colour with white
+  style: :#ffffff
+- key: v
+  style: :#000000
 - key: g
-  style: opacity
-  value: "1"
+  style: opacity:0.5
+
+# Rebinds
 - key: w
   rebind_to: e
 - key: e
   rebind_to: w
+

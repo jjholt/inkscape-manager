@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         let keypress = event_handler.listen().unwrap_or(None);
         if let Some(keypress) = keypress {
-            keypress.send(&config.target).unwrap_or(());
+            keypress.send(config.target, false)?;
         }
     }
 }
