@@ -6,8 +6,22 @@ In this example, `av` sets a colour (fill) to black, then and `ab` sets it to wh
 https://github.com/jjholt/inkscape-manager/assets/876097/ed27480b-4620-4046-ac17-85e6c08fe1d7
 
 
-# Configuration
-The most important file is `config.yaml`, which outlines which keys are simple rebinds and which keys are styles.
+# Keybinds
+A style consists of a list of property:value pairs. If a property or value is missing in a style, pressing that key will wait for another key before doing anything.
+
+In this example, `stroke` is missing a value. Pressing `s` alone would do nothing until it was paired with `b`. It would then create `stroke:#ffffff`.
+
+```yaml
+- key: s
+  style: stroke;stroke-width:2.6;
+- key: b
+  style: :#ffffff
+```
+
+## Creating your own
+If you want to change default values, modify `config.yaml`.
+
+Keybinds are either styles or rebinds:
 
 ```yaml
 keybinds:
@@ -29,18 +43,3 @@ keybinds:
   rebind_to: w
 ```
 
-## Creating your own
-A style conditionally contains a property and a value. When either of them is absent, that style is expected to be paired with another to do something useful.
-That is, to colour a shape in black, you would need 2 clicks: the one that `fill`s and the one that sets colour to `#000000`. 
-Internally this creates `fill:#000000`, giving you the flexibility to assign sets of keys for colours, shapes, changing properties, etc.
-
-An empty property is written `:value`, and an empty value is `property:` (though the `:` can be omitted).
-Often it is useful to have a set of standard other styles that go with one option. For example when defining a stroked line, you may want to define width, opacity, etc and only change the colour.
-That can be easily done:
-
-```yaml
-# ...
-style: stroke;stroke-width:2.6;
-# ...
-style: :#ffffff
-```
