@@ -1,5 +1,10 @@
 # Inkscape Manager
-Attempts to create an overlay for inkscape that allows quickly applying commonly used styles
+Attempts to create an overlay for inkscape that allows quickly applying commonly used styles.
+
+In this example, `av` sets a colour (fill) to black, then and `ab` sets it to white. `sv` creates a stroke that is coloured black.
+
+https://github.com/jjholt/inkscape-manager/assets/876097/ed27480b-4620-4046-ac17-85e6c08fe1d7
+
 
 # Configuration
 The most important file is `config.yaml`, which outlines which keys are simple rebinds and which keys are styles.
