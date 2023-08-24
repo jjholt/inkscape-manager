@@ -34,9 +34,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let event_handler = EventHandler::new(&connections, &config.keybinds);
 
     loop {
-        let keypress = event_handler.listen().unwrap_or(None);
-        if let Some(keypress) = keypress {
-            keypress.send(config.target, false)?;
-        }
+        event_handler
+            .listen()
+            .unwrap_or(None)
+            .map(|f| f.send(config.target));
     }
 }

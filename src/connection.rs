@@ -45,9 +45,6 @@ impl<'a> Connections<'a> {
 }
 
 impl<'a, 'b> ActiveWindow<'a, 'b> {
-    // pub fn window(&self) -> &x::Window {
-    //     &self.window
-    // }
     pub fn is_inkscape(&self) -> xcb::Result<bool> {
         let cookie = self.connections.icccm.send_request(&icccm::GetWmClass::new(self.window));
         let reply = self.connections.icccm.wait_for_reply(cookie)?;

@@ -34,7 +34,7 @@ pub struct KeyPress<'a> {
 impl SendEvent for x::KeyPressEvent {}
 
 impl <'a> KeyPress <'a> {
-    pub fn listen_second_press(&'a self, current_style: &'a Style, target: Option<&str>) -> Style {
+    pub fn listen_second_press(&'a self, current_style: &'a Style) -> Style {
         let event = self.event_handler.connections.xcb.wait_for_event().unwrap();
         let new_style = if let xcb::Event::X(x::Event::KeyPress(ev)) = event {
             let new_key = ev.detail()
@@ -43,7 +43,7 @@ impl <'a> KeyPress <'a> {
                 .map(|c| KeyPress::new(ev, self.event_handler, &c.action));
 
             new_key
-                .and_then(|f| f.send(target, true).unwrap())
+                .and_then(|f| f.get_style())
                 .and_then(|f| f.missing_param())
                 .map(|f| current_style.set(f))
         } else {
@@ -51,47 +51,46 @@ impl <'a> KeyPress <'a> {
         };
         new_style.unwrap_or_else(|| current_style.to_owned())
     }
-    pub fn send(self, target: Option<&str>, second_press: bool) -> xcb::Result<Option<&'a StyleList<'a>>> {
+
+    pub fn get_style(self) -> Option<&'a StyleList<'a>> {
+       match self.action {
+        Action::Style { style } => Some(style),
+        _ => None,
+    }
+    }
+    pub fn send(self, target: Option<&str>) -> Result<(), Box<dyn std::error::Error>>{
         match self.action {
             Action::Rebind { rebind_to: new_key } => {
-                let new_key = new_key.try_into_keycode().unwrap();
+                let new_key = new_key.try_into_keycode().expect("Trying to rebind to unknown key");
                 let cookie = self.event_handler.connections.xcb
                     .send_request_checked(&self.to_new_event(new_key, None).send());
                 self.event_handler.connections.xcb.check_request(cookie)?;
-                Ok(None)
             }
             Action::Style { style } => {
-                // Check it's a filled style. If not, wait for a second keybind
-                if second_press {
-                    return Ok(Some(style))
-                }
-
-                let style_list: Vec<Style> = style
+                let style_list: Vec<Style>= style
                     .iter()
-                    .map(|c| { 
-                        if c.missing_param() && !second_press {
-                            self.listen_second_press(c, target)
-                        } else { c.to_owned() } })
+                    .map(|c| c.missing_param()
+                         .then(|| self.listen_second_press(c))
+                         .unwrap_or_else(|| c.to_owned()) )
                     .collect();
 
-                Svg::new(&StyleList(style_list))
+                Svg::new(&style_list.into())
                     .to_string()
-                    .to_clipboard(target)
-                    .unwrap();
+                    .to_clipboard(target)?;
+
                 self.paste_style()?;
-                Ok(None)
             }
         }
+        Ok(())
     }
 
     fn to_new_event(&self, new_key: x::Keycode, state: Option<x::KeyButMask>) -> x::KeyPressEvent {
         let ev = &self.event;
-        let state = state.unwrap_or(ev.state());
         x::KeyPressEvent::new(
             new_key,
             ev.time(), ev.root(), ev.event(), ev.child(),
             ev.root_x(), ev.root_y(), ev.event_x(), ev.event_y(),
-            state, 
+            state.unwrap_or(ev.state()), 
             ev.same_screen(),
         )
     }
@@ -114,12 +113,9 @@ impl<'a> EventHandler<'a> {
     }
 
     pub fn listen(&self) -> xcb::Result<Option<KeyPress>> {
-        let connections = self.connections;
-        let xcb = connections.xcb;
+        let window = self.connections.get_active_window()?;
 
-        let event = xcb.wait_for_event()?;
-
-        let window = connections.get_active_window()?;
+        let event = self.connections.xcb.wait_for_event()?;
         match event {
             xcb::Event::X(x::Event::PropertyNotify(_)) if window.is_inkscape()? => window.grab_key()?,
             xcb::Event::X(x::Event::PropertyNotify(_)) => window.ungrab_key()?,
