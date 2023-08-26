@@ -27,19 +27,23 @@ Keybinds are either styles or rebinds:
 keybinds:
 - key: a
   style: fill
-- key: s # Stroke + constants
-  style: stroke;stroke-width:2.6;stroke-dasharray:15.9,2.6;stroke-opacity:1;
-- key: b # Colour with white
+- key: d # Solid line
+  style: stroke;stroke-dasharray:none;-inkscape-stroke:none
+- key: s # Stroked line
+  style: stroke;stroke-dasharray:22.67720315,3.77952756;stroke-opacity:1;
+- key: v # Paint white
   style: :#ffffff
-- key: v
+- key: b # Paint black
   style: :#000000
-- key: g
-  style: opacity:0.5
+- key: c # Removes fill, for example.
+  style: :none
+- key: g # Add an arrow header. #ConcaveTriangle is hardcoded in the styler.
+  style: marker-end:url(#ConcaveTriangle);
 
 # Rebinds
 - key: w
   rebind_to: e
 - key: e
   rebind_to: w
-```
 
+```
