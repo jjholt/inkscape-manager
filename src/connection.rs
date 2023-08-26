@@ -57,6 +57,7 @@ impl<'a, 'b> ActiveWindow<'a, 'b> {
             owner_events: true,
             grab_window: self.window,
             modifiers: x::ModMask::ANY,
+            // modifiers: x::ModMask::N5, // Only grabs when alt_gr is clicked
             key: x::GRAB_ANY,
             pointer_mode: x::GrabMode::Async,
             keyboard_mode: x::GrabMode::Async,
