@@ -69,6 +69,14 @@ impl <'a> KeyPress <'a> {
     fn listen_second_press(&'a self, current_style: &'a Style) -> Style {
         // Instead of coupling the keypresses, listen for 0.5s ignoring key releases. So now the
         // keys can be pressed separately
+        
+        // let start_time = std::time::Instant::now();
+        // while start_time.elapsed() <= std::time::Duration::from_millis(500) { 
+        //     let this = self.event_handler.connections.xcb.wait_for_event().unwrap();
+        //     if let xcb::Event::X(x::Event::KeyRelease(_)) = &this {
+        //         break 
+        //     }
+        // }
 
         let event = self.event_handler.connections.xcb.wait_for_event().unwrap();
         let new_style: Option<Style> = if let xcb::Event::X(x::Event::KeyPress(ev)) = event {
