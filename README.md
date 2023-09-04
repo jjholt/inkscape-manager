@@ -3,7 +3,9 @@ Attempts to create an overlay for inkscape that allows quickly applying commonly
 
 In this example, `av` sets a colour (fill) to black, then and `ab` sets it to white. `sv` creates a stroke that is coloured black.
 
-https://github.com/jjholt/inkscape-manager/assets/876097/ed27480b-4620-4046-ac17-85e6c08fe1d7
+https://github.com/jjholt/inkscape-manager/assets/876097/48d0435c-9a33-42e2-ac91-1f14147acaa7
+
+
 
 
 # Keybinds
