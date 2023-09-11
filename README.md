@@ -6,7 +6,7 @@ In this example, `ab` sets a colour (fill) to black, `av` sets it to white. `s` 
 https://github.com/jjholt/inkscape-manager/assets/876097/48d0435c-9a33-42e2-ac91-1f14147acaa7
 
 
-#Dependencies
+# Dependencies
 Clipboard management to apply styles uses `xclip`.
 
 Written for `X11` and only tested using one window manager: `i3`. A rewrite for Wayland might happen eventually.
