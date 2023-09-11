@@ -3,7 +3,9 @@ Attempts to create an overlay for inkscape that allows quickly applying commonly
 
 In this example, `av` sets a colour (fill) to black, then and `ab` sets it to white. `sv` creates a stroke that is coloured black.
 
-https://github.com/jjholt/inkscape-manager/assets/876097/ed27480b-4620-4046-ac17-85e6c08fe1d7
+https://github.com/jjholt/inkscape-manager/assets/876097/48d0435c-9a33-42e2-ac91-1f14147acaa7
+
+
 
 
 # Keybinds
@@ -27,19 +29,23 @@ Keybinds are either styles or rebinds:
 keybinds:
 - key: a
   style: fill
-- key: s # Stroke + constants
-  style: stroke;stroke-width:2.6;stroke-dasharray:15.9,2.6;stroke-opacity:1;
-- key: b # Colour with white
+- key: d # Solid line
+  style: stroke;stroke-dasharray:none;-inkscape-stroke:none
+- key: s # Stroked line
+  style: stroke;stroke-dasharray:22.67720315,3.77952756;stroke-opacity:1;
+- key: v # Paint white
   style: :#ffffff
-- key: v
+- key: b # Paint black
   style: :#000000
-- key: g
-  style: opacity:0.5
+- key: c # Removes fill, for example.
+  style: :none
+- key: g # Add an arrow header. #ConcaveTriangle is hardcoded in the styler.
+  style: marker-end:url(#ConcaveTriangle);
 
 # Rebinds
 - key: w
   rebind_to: e
 - key: e
   rebind_to: w
-```
 
+```
