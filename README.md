@@ -1,7 +1,7 @@
 # Inkscape Manager
 Attempts to create an overlay for inkscape that allows quickly applying commonly used styles.
 
-In this example, `av` sets a colour (fill) to black, then and `ab` sets it to white. `sv` creates a stroke that is coloured black.
+In this example, `ab` sets a colour (fill) to black, `av` sets it to white. `s` alone creates a stroke style, but it can be paired with a colour (`sb`) to create a black stroke.
 
 https://github.com/jjholt/inkscape-manager/assets/876097/48d0435c-9a33-42e2-ac91-1f14147acaa7
 
@@ -26,7 +26,9 @@ In this example, `stroke` is missing a value. Pressing `s` alone would do nothin
 ## Creating your own
 If you want to change default values, modify `config.yaml`.
 
-Keybinds are either styles or rebinds. Rebinds are really straightforward, but styles require you to know what SVG styles look like. The `examples/` folder contains some examples. You might find useful to either use the XML inspector in inkscape or save an image as `.svg`, then find the section that says `styles:` to create exactly what you need.
+Keybinds are either styles or rebinds. Rebinds are really straightforward, but styles require you to know what SVG styles look like.
+
+The `examples/` folder contains some examples. You might find useful to either use the XML inspector in inkscape or save an image as `.svg`, then find the section that says `styles:` to create exactly what you need.
 
 ```yaml
 keybinds:
