@@ -11,3 +11,4 @@ serde = { version = "1.0", features = ["derive"] }
 xkbcommon = { version = "0.5", features = ["x11"] }
 
 xcb-wm = { version = "0.4", features = ["icccm", "ewmh"] }
+strum = { version = "0.25.0", features = ["derive"] }
